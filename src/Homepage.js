@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import PageToggler from "./components/PageWrapper";
+import PageToggler from "./components/PageToggler";
 import Page from "./components/Page";
 import Toggler from "./components/Toggler";
 import { ActivePageContext } from "./App";

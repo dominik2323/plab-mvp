@@ -9,7 +9,7 @@ function Homepage() {
 
   return (
     <PageToggler>
-      <Page colors={["#ffffff", "#000000"]}>
+      <Page height={"300vh"} colors={["#ffffff", "#000000"]}>
         <span>WORK</span>
         {activePage !== null && (
           <Toggler
@@ -20,7 +20,7 @@ function Homepage() {
           </Toggler>
         )}
       </Page>
-      <Page colors={["#A947FF", "#FAF4FF"]}>
+      <Page height={"280vh"} colors={["#A947FF", "#FAF4FF"]}>
         <span>LIFE</span>
         {activePage !== null && (
           <Toggler

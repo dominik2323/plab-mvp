@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import PageToggler from "./components/PageToggler";
+import PageToggler from "./components/PageToggler/PageToggler";
 import Page from "./components/Page";
 import Toggler from "./components/Toggler";
 import { ActivePageContext } from "./App";
@@ -20,7 +20,7 @@ function Homepage() {
           </Toggler>
         )}
       </Page>
-      <Page height={"280vh"} colors={["#A947FF", "#FAF4FF"]}>
+      <Page height={"300vh"} colors={["#A947FF", "#FAF4FF"]}>
         <span>LIFE</span>
         {activePage !== null && (
           <Toggler

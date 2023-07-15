@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import styled from "styled-components";
-import { gridAreasMatrix } from "../PageTogglerConsts";
+import { gridAreasMatrix } from "../pageTogglerConsts";
 
 export const StyledPageToggler = styled.div`
   overflow-x: hidden;

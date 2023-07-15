@@ -1,24 +1,30 @@
 import { useAnimate } from "framer-motion";
 import React, { Fragment, useContext, useEffect, useRef } from "react";
-import { ActivePageContext } from "../../App";
-import { gridAreasMatrix } from "./PageTogglerConsts.js";
 import {
   StyledPageToggler,
   TogglerContainer,
 } from "./Styles/StyledPageToggler";
+import { gridAreasMatrix } from "./pageTogglerConsts";
+import { PageTogglerContext } from "./pageTogglerContext";
 
-function PageToggler({ children }) {
+interface PageTogglerProps {
+  children: JSX.Element[];
+}
+
+type VPos = 0 | 1 | 2;
+
+function PageToggler({ children }: PageTogglerProps) {
   const { activePage, setActivePage, setShouldUsePageToggler } =
-    useContext(ActivePageContext);
+    useContext(PageTogglerContext);
   const [scope, animate] = useAnimate();
 
-  const pageTogglerRef = useRef(null);
-  const vPos = useRef(0);
-  const prevVPos = useRef(vPos.current);
-  const prevScrollTop = useRef(0);
-  const scrollDirection = useRef(0);
-  const rafId = useRef(null);
-  const isSettingLayout = useRef(false);
+  const pageTogglerRef = useRef<HTMLDivElement>(null);
+  const vPos = useRef<VPos>(0);
+  const prevVPos = useRef<VPos>(vPos.current);
+  const prevScrollTop = useRef<number>(0);
+  const scrollDirection = useRef<-1 | 0 | 1>(0);
+  const rafId = useRef<number>(null);
+  const isSettingLayout = useRef<boolean>(false);
 
   useEffect(() => {
     // disable animation when changing layouts
@@ -150,8 +156,8 @@ function PageToggler({ children }) {
     const handleResize = () => {
       const topPage = document.querySelector(`.p0`);
       const bottomPage = document.querySelector(`.p1`);
-      const topPageCopy = document.querySelector(`.p0c`);
-      const bottomPageCopy = document.querySelector(`.p1c`);
+      const topPageCopy = document.querySelector(`.p0c`) as HTMLElement;
+      const bottomPageCopy = document.querySelector(`.p1c`) as HTMLElement;
       const maxHeight = Math.max(topPage.clientHeight, bottomPage.clientHeight);
 
       topPageCopy.style.height = `${maxHeight}px`;

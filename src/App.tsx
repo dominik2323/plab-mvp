@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import "./App.css";
 import Homepage from "./Homepage";
-
-export const ActivePageContext = React.createContext(null);
+import {
+  ActivePage,
+  PageTogglerContext,
+} from "./components/PageToggler/pageTogglerContext";
 
 function App() {
-  const [activePage, setActivePage] = useState(0);
+  const [activePage, setActivePage] = useState<ActivePage>(0);
   const [shouldUsePageToggler, setShouldUsePageToggler] = useState(true);
+
   return (
     <div className='App'>
-      <ActivePageContext.Provider
+      <PageTogglerContext.Provider
         value={{
           activePage,
           setActivePage,
@@ -17,7 +20,7 @@ function App() {
           setShouldUsePageToggler,
         }}>
         <Homepage />
-      </ActivePageContext.Provider>
+      </PageTogglerContext.Provider>
     </div>
   );
 }

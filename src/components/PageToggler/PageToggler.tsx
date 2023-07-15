@@ -32,7 +32,7 @@ function PageToggler({ children }: PageTogglerProps) {
       animate(
         scope.current,
         { x: activePage === 0 ? "0%" : "-50%" },
-        { ease: [0.22, 1, 0.36, 1] }
+        { ease: [0.22, 1, 0.36, 1], duration: 0.7 }
       );
     }
   }, [animate, scope, activePage]);
@@ -150,7 +150,14 @@ function PageToggler({ children }: PageTogglerProps) {
     return () => {
       cancelAnimationFrame(rafId.current);
     };
-  }, [setActivePage, setShouldUsePageToggler, animate, activePage, scope]);
+  }, [
+    setActivePage,
+    setShouldUsePageToggler,
+    animate,
+    activePage,
+    scope,
+    pageTogglerRef,
+  ]);
 
   useEffect(() => {
     const handleResize = () => {

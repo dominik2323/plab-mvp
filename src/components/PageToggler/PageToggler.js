@@ -1,4 +1,4 @@
-import { useAnimationControls } from "framer-motion";
+import { useAnimate } from "framer-motion";
 import React, { Fragment, useContext, useEffect, useRef } from "react";
 import { ActivePageContext } from "../../App";
 import { gridAreasMatrix } from "./PageTogglerConsts.js";
@@ -10,25 +10,31 @@ import {
 function PageToggler({ children }) {
   const { activePage, setActivePage, setShouldUsePageToggler } =
     useContext(ActivePageContext);
-  const animationControls = useAnimationControls();
+  const [scope, animate] = useAnimate();
 
   const pageTogglerRef = useRef(null);
-  const togglerContainerRef = useRef(null);
   const vPos = useRef(0);
   const prevVPos = useRef(vPos.current);
   const prevScrollTop = useRef(0);
   const scrollDirection = useRef(0);
   const rafId = useRef(null);
-
-  const toggleLayout = (layout) => {
-    togglerContainerRef.current.style.gridTemplateAreas = layout;
-  };
+  const isSettingLayout = useRef(false);
 
   useEffect(() => {
-    animationControls.start({ x: activePage === 0 ? "0%" : "-50%" });
-  }, [activePage, animationControls]);
+    if (!isSettingLayout.current) {
+      animate(scope.current, { x: activePage === 0 ? "0%" : "-50%" });
+    }
+  }, [animate, scope, activePage]);
 
   useEffect(() => {
+    const setLayout = (layout, motionValue) => {
+      isSettingLayout.current = true;
+      animate(scope.current, motionValue, { duration: 0 }).then(() => {
+        scope.current.style.gridTemplateAreas = layout;
+        isSettingLayout.current = false;
+      });
+    };
+
     const raf = () => {
       const scrollTop = pageTogglerRef.current.scrollTop;
 
@@ -56,8 +62,9 @@ function PageToggler({ children }) {
           scrollDirection.current === -1
         ) {
           vPos.current = 0;
-          toggleLayout(gridAreasMatrix[activePage][vPos.current]);
-          animationControls.set({ x: activePage === 0 ? "0%" : "-50%" });
+          setLayout(gridAreasMatrix[activePage][vPos.current], {
+            x: activePage === 0 ? "0%" : "-50%",
+          });
         }
 
         // handle returning from pages blending back to bottom
@@ -68,8 +75,9 @@ function PageToggler({ children }) {
           scrollDirection.current === 1
         ) {
           vPos.current = 2;
-          toggleLayout(gridAreasMatrix[activePage][vPos.current]);
-          animationControls.set({ x: activePage === 1 ? "-50%" : "0%" });
+          setLayout(gridAreasMatrix[activePage][vPos.current], {
+            x: activePage === 1 ? "-50%" : "0%",
+          });
         }
 
         // pages are blending from top to bottom
@@ -80,8 +88,9 @@ function PageToggler({ children }) {
         ) {
           prevVPos.current = vPos.current;
           vPos.current = 1;
-          toggleLayout(gridAreasMatrix[activePage][vPos.current]);
-          animationControls.set({ x: "0%" });
+          setLayout(gridAreasMatrix[activePage][vPos.current], {
+            x: "0%",
+          });
         }
 
         // set the bottom layout
@@ -92,8 +101,9 @@ function PageToggler({ children }) {
         ) {
           vPos.current = 2;
           setActivePage(activePage === 0 ? 1 : 0);
-          toggleLayout(gridAreasMatrix[activePage][vPos.current]);
-          animationControls.set({ x: activePage === 0 ? "-50%" : "0%" });
+          setLayout(gridAreasMatrix[activePage][vPos.current], {
+            x: activePage === 0 ? "-50%" : "0%",
+          });
         }
 
         // pages are blending from bottom to top
@@ -104,8 +114,9 @@ function PageToggler({ children }) {
         ) {
           prevVPos.current = vPos.current;
           vPos.current = 1;
-          toggleLayout(gridAreasMatrix[activePage === 0 ? 1 : 0][vPos.current]);
-          animationControls.set({ x: "0%" });
+          setLayout(gridAreasMatrix[activePage === 0 ? 1 : 0][vPos.current], {
+            x: "0%",
+          });
         }
 
         // set the top layout
@@ -116,8 +127,9 @@ function PageToggler({ children }) {
         ) {
           vPos.current = 0;
           setActivePage(activePage === 0 ? 1 : 0);
-          toggleLayout(gridAreasMatrix[activePage][vPos.current]);
-          animationControls.set({ x: activePage === 1 ? "0%" : "-50%" });
+          setLayout(gridAreasMatrix[activePage][vPos.current], {
+            x: activePage === 1 ? "0%" : "-50%",
+          });
         }
       }
       rafId.current = requestAnimationFrame(raf);
@@ -127,7 +139,7 @@ function PageToggler({ children }) {
     return () => {
       cancelAnimationFrame(rafId.current);
     };
-  }, [setActivePage, setShouldUsePageToggler, animationControls, activePage]);
+  }, [setActivePage, setShouldUsePageToggler, animate, activePage, scope]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -153,10 +165,7 @@ function PageToggler({ children }) {
 
   return (
     <StyledPageToggler ref={pageTogglerRef}>
-      <TogglerContainer
-        ref={togglerContainerRef}
-        animate={animationControls}
-        transition={{ ease: [0.22, 1, 0.36, 1] }}>
+      <TogglerContainer ref={scope} transition={{ ease: [0.22, 1, 0.36, 1] }}>
         {children.map((c, i) => (
           <Fragment key={i}>
             <div className={`p${i}`}>{c}</div>

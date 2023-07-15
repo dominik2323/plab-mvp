@@ -21,8 +21,13 @@ function PageToggler({ children }) {
   const isSettingLayout = useRef(false);
 
   useEffect(() => {
+    // disable animation when changing layouts
     if (!isSettingLayout.current) {
-      animate(scope.current, { x: activePage === 0 ? "0%" : "-50%" });
+      animate(
+        scope.current,
+        { x: activePage === 0 ? "0%" : "-50%" },
+        { ease: [0.22, 1, 0.36, 1] }
+      );
     }
   }, [animate, scope, activePage]);
 
@@ -54,7 +59,7 @@ function PageToggler({ children }) {
           scrollTop <= activePageHeight;
         setShouldUsePageToggler(!arePagesBlending);
 
-        // handle returning from pages blending back to top
+        // top page >>> (pages blending) >>> [ top page ] - bottom page
         if (
           !arePagesBlending &&
           prevVPos.current === 0 &&
@@ -67,7 +72,7 @@ function PageToggler({ children }) {
           });
         }
 
-        // handle returning from pages blending back to bottom
+        // top page - [ bottom page ] <<< (pages blending) <<< bottom page
         if (
           !arePagesBlending &&
           prevVPos.current === 2 &&
@@ -80,7 +85,7 @@ function PageToggler({ children }) {
           });
         }
 
-        // pages are blending from top to bottom
+        // (top page) >>> [ pages blending ] - bottom page
         if (
           arePagesBlending &&
           vPos.current === 0 &&
@@ -93,7 +98,7 @@ function PageToggler({ children }) {
           });
         }
 
-        // set the bottom layout
+        // top page - (pages blending) >>> [ bottom page ]
         if (
           !arePagesBlending &&
           vPos.current === 1 &&
@@ -106,7 +111,7 @@ function PageToggler({ children }) {
           });
         }
 
-        // pages are blending from bottom to top
+        // top page - (pages blending) <<< [ bottom page ]
         if (
           arePagesBlending &&
           vPos.current === 2 &&
@@ -119,7 +124,7 @@ function PageToggler({ children }) {
           });
         }
 
-        // set the top layout
+        // [ top page ] <<< (pages blending) - bottom page
         if (
           !arePagesBlending &&
           vPos.current === 1 &&
@@ -143,21 +148,17 @@ function PageToggler({ children }) {
 
   useEffect(() => {
     const handleResize = () => {
-      const firstPage = document.querySelector(`.p0`);
-      const secondPage = document.querySelector(`.p1`);
-      const firstPageCopy = document.querySelector(`.p0c`);
-      const secondPageCopy = document.querySelector(`.p1c`);
-      const maxHeight = Math.max(
-        firstPage.clientHeight,
-        secondPage.clientHeight
-      );
+      const topPage = document.querySelector(`.p0`);
+      const bottomPage = document.querySelector(`.p1`);
+      const topPageCopy = document.querySelector(`.p0c`);
+      const bottomPageCopy = document.querySelector(`.p1c`);
+      const maxHeight = Math.max(topPage.clientHeight, bottomPage.clientHeight);
 
-      firstPageCopy.style.height = `${maxHeight}px`;
-      secondPageCopy.style.height = `${maxHeight}px`;
+      topPageCopy.style.height = `${maxHeight}px`;
+      bottomPageCopy.style.height = `${maxHeight}px`;
     };
     handleResize();
     window.addEventListener("resize", handleResize);
-
     return () => {
       window.removeEventListener("resize", handleResize);
     };
@@ -165,13 +166,11 @@ function PageToggler({ children }) {
 
   return (
     <StyledPageToggler ref={pageTogglerRef}>
-      <TogglerContainer ref={scope} transition={{ ease: [0.22, 1, 0.36, 1] }}>
+      <TogglerContainer ref={scope}>
         {children.map((c, i) => (
           <Fragment key={i}>
             <div className={`p${i}`}>{c}</div>
-            <div className={`p${i}c`}>
-              <span>COPY: {i}</span>
-            </div>
+            <div className={`p${i}c`} />
           </Fragment>
         ))}
       </TogglerContainer>

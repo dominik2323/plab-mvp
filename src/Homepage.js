@@ -5,12 +5,11 @@ import Toggler from "./components/Toggler";
 import { ActivePageContext } from "./App";
 
 function Homepage() {
-  const { activePage, setActivePage, shouldUsePageToggler } =
-    useContext(ActivePageContext);
+  const { setActivePage, shouldUsePageToggler } = useContext(ActivePageContext);
 
   return (
     <PageToggler>
-      <Page height={"300vh"} colors={["#6a6", "#000000"]}>
+      <Page height={"300vh"} colors={["#FFFFFF", "#000000"]}>
         <span>WORK</span>
         {shouldUsePageToggler && (
           <Toggler

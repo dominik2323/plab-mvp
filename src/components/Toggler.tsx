@@ -8,58 +8,165 @@ const StyledToggler = styled(motion.div)`
   z-index: 1;
   width: 100px;
   height: 100vh;
-  top: 0;
   color: white;
   &.work {
-    left: unset;
-    right: 0;
     background-color: #a947ff;
   }
   &.life {
-    left: 0;
-    right: unset;
     background-color: black;
   }
 `;
+const resolvePromisesSeq = async (tasks) => {
+  for (const task of tasks) {
+    await task();
+  }
+};
+
+const showWorkTogglerConfig = [
+  {
+    values: { x: `100%`, right: `0%`, left: `unset`, opacity: 0 },
+    transition: { duration: 0, delay: 0 },
+  },
+  {
+    values: { x: `100%`, right: `0%`, left: `unset`, opacity: 1 },
+    transition: { duration: 0, delay: 0 },
+  },
+  {
+    values: { x: `0%`, right: `0%`, left: `unset`, opacity: 1 },
+    transition: { duration: 0.3, delay: 0 },
+  },
+];
+
+const showLifeTogglerConfig = [
+  {
+    values: { x: `-100%`, left: `0%`, right: `unset`, opacity: 0 },
+    transition: { duration: 0, delay: 0 },
+  },
+  {
+    values: { x: `-100%`, left: `0%`, right: `unset`, opacity: 1 },
+    transition: { duration: 0, delay: 0 },
+  },
+  {
+    values: { x: `0%`, left: `0%`, right: `unset`, opacity: 1 },
+    transition: { duration: 0.3, delay: 0 },
+  },
+];
+
+const hideWorkTogglerConfig = [
+  {
+    values: { x: `0%`, right: `0%`, left: `unset`, opacity: 1 },
+    transition: { duration: 0, delay: 0 },
+  },
+  {
+    values: { x: `100%`, right: `0%`, left: `unset`, opacity: 1 },
+    transition: { duration: 0.3, delay: 0 },
+  },
+  {
+    values: { x: `100%`, right: `0%`, left: `unset`, opacity: 0 },
+    transition: { duration: 0, delay: 0 },
+  },
+];
+const hideLifeTogglerConfig = [
+  {
+    values: { x: `0%`, left: `0%`, right: `unset`, opacity: 1 },
+    transition: { duration: 0, delay: 0 },
+  },
+  {
+    values: { x: `-100%`, left: `0%`, right: `unset`, opacity: 1 },
+    transition: { duration: 0.3, delay: 0 },
+  },
+  {
+    values: { x: `-100%`, left: `0%`, right: `unset`, opacity: 0 },
+    transition: { duration: 0, delay: 0 },
+  },
+];
 
 function Toggler() {
-  const { activePage, setActivePage, shouldUsePageToggler } =
-    useContext(PageTogglerContext);
+  const {
+    activePage,
+    setActivePage,
+    shouldUsePageToggler,
+    toggleContainerRef,
+    isLayoutChanging,
+  } = useContext(PageTogglerContext);
   const [scope, animate] = useAnimate();
-  const direction = activePage === 1 ? -1 : 1;
+
+  const createAnimationFromConfig = (config: typeof showWorkTogglerConfig) => {
+    return config.reduce((acc, curr, i, original) => {
+      return [
+        ...acc,
+        async () => {
+          await animate(scope.current, curr.values, curr.transition);
+          return { values: curr.values, transition: curr.transition };
+        },
+      ];
+    }, []);
+  };
+
+  const showWorkTogglerAnimation = createAnimationFromConfig(
+    showWorkTogglerConfig
+  );
+  const hideWorkTogglerAnimation = createAnimationFromConfig(
+    hideWorkTogglerConfig
+  );
+
+  const showLifeTogglerAnimation = createAnimationFromConfig(
+    showLifeTogglerConfig
+  );
+  const hideLifeTogglerAnimation = createAnimationFromConfig(
+    hideLifeTogglerConfig
+  );
 
   useEffect(() => {
-    const animationTemplate = (value, transition) => {
-      return animate(scope.current, value, transition);
+    // if (isLayoutChanging.current) return;
+    if (!shouldUsePageToggler) return;
+
+    const goToLifeAnimation = async () => {
+      await animate(
+        toggleContainerRef.current,
+        { x: "-50%" },
+        { ease: [0.22, 1, 0.36, 1], duration: 0.7 }
+      );
+      await resolvePromisesSeq(showLifeTogglerAnimation);
     };
 
-    async function showToggler() {
-      await animationTemplate({ x: `${0}%` }, { delay: 0.5, duration: 0.3 });
-    }
-    async function hideToggler(duration) {
-      await animationTemplate({ x: `${direction * 100}%` }, { duration });
-    }
+    const goToWorkAnimation = async () => {
+      await animate(
+        toggleContainerRef.current,
+        { x: "0%" },
+        { ease: [0.22, 1, 0.36, 1], duration: 0.7 }
+      );
+      await resolvePromisesSeq(showWorkTogglerAnimation);
+    };
 
-    async function compoundAnimation() {
-      await hideToggler(0);
-      await showToggler();
+    activePage === 1 ? goToLifeAnimation() : goToWorkAnimation();
+  }, [activePage, isLayoutChanging, shouldUsePageToggler]);
+
+  useEffect(() => {
+    if (!shouldUsePageToggler) {
+      activePage === 1
+        ? resolvePromisesSeq(hideLifeTogglerAnimation)
+        : resolvePromisesSeq(hideWorkTogglerAnimation);
     }
     if (shouldUsePageToggler) {
-      compoundAnimation();
-    } else {
-      hideToggler(0.3);
+      activePage === 1
+        ? resolvePromisesSeq(showLifeTogglerAnimation)
+        : resolvePromisesSeq(showWorkTogglerAnimation);
     }
-  }, [scope, direction, animate, shouldUsePageToggler]);
+  }, [shouldUsePageToggler, activePage]);
 
   return (
     <StyledToggler
-      key={activePage}
       ref={scope}
       className={activePage === 0 ? "work" : "life"}
-      onClick={() => {
-        animate(scope.current, { x: `${direction * 100}%` }, {}).then(() => {
-          setActivePage((prevPage) => (prevPage === 1 ? 0 : 1));
-        });
+      onClick={async () => {
+        if (activePage === 0) {
+          await resolvePromisesSeq(hideWorkTogglerAnimation);
+          setActivePage(1);
+          return;
+        }
+        await resolvePromisesSeq(hideLifeTogglerAnimation);
+        setActivePage(0);
       }}>
       Go to {activePage === 1 ? "work" : "life"}
     </StyledToggler>

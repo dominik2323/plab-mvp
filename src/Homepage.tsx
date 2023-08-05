@@ -15,7 +15,7 @@ function Homepage() {
         <Page height={"300vh"} colors={["#FFFFFF", "#000000"]}>
           <span>WORK</span>
         </Page>
-        <Page height={"250vh"} colors={["#A947FF", "#FAF4FF"]}>
+        <Page height={"300vh"} colors={["#A947FF", "#FAF4FF"]}>
           <span>LIFE</span>
         </Page>
       </PageToggler>

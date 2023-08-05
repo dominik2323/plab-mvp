@@ -7,6 +7,8 @@ export type PageTogglerContextType = {
   setActivePage: React.Dispatch<React.SetStateAction<ActivePage>>;
   shouldUsePageToggler: boolean;
   setShouldUsePageToggler: React.Dispatch<React.SetStateAction<boolean>>;
+  toggleContainerRef: React.MutableRefObject<HTMLDivElement>;
+  isLayoutChanging: React.MutableRefObject<boolean>;
 };
 
 export const PageTogglerContext =

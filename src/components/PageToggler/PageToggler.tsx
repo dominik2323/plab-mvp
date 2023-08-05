@@ -1,4 +1,4 @@
-import { useAnimate } from "framer-motion";
+import { animate, useAnimate } from "framer-motion";
 import React, { Fragment, useContext, useEffect, useRef } from "react";
 import {
   StyledPageToggler,
@@ -14,8 +14,13 @@ interface PageTogglerProps {
 type VPos = 0 | 1 | 2;
 
 function PageToggler({ children }: PageTogglerProps) {
-  const { activePage, setActivePage, setShouldUsePageToggler } =
-    useContext(PageTogglerContext);
+  const {
+    activePage,
+    setActivePage,
+    setShouldUsePageToggler,
+    toggleContainerRef,
+    isLayoutChanging,
+  } = useContext(PageTogglerContext);
   const [scope, animate] = useAnimate();
 
   const pageTogglerRef = useRef<HTMLDivElement>(null);
@@ -24,26 +29,16 @@ function PageToggler({ children }: PageTogglerProps) {
   const prevScrollTop = useRef<number>(0);
   const scrollDirection = useRef<-1 | 0 | 1>(0);
   const rafId = useRef<number>(null);
-  const isSettingLayout = useRef<boolean>(false);
-
-  useEffect(() => {
-    // disable animation when changing layouts
-    if (!isSettingLayout.current) {
-      animate(
-        scope.current,
-        { x: activePage === 0 ? "0%" : "-50%" },
-        { ease: [0.22, 1, 0.36, 1], duration: 0.7 }
-      );
-    }
-  }, [animate, scope, activePage]);
 
   useEffect(() => {
     const setLayout = (layout, motionValue) => {
-      isSettingLayout.current = true;
-      animate(scope.current, motionValue, { duration: 0 }).then(() => {
-        scope.current.style.gridTemplateAreas = layout;
-        isSettingLayout.current = false;
-      });
+      isLayoutChanging.current = true;
+      animate(toggleContainerRef.current, motionValue, { duration: 0 }).then(
+        () => {
+          toggleContainerRef.current.style.gridTemplateAreas = layout;
+          isLayoutChanging.current = false;
+        }
+      );
     };
 
     const raf = () => {
@@ -155,7 +150,7 @@ function PageToggler({ children }: PageTogglerProps) {
     setShouldUsePageToggler,
     animate,
     activePage,
-    scope,
+    toggleContainerRef,
     pageTogglerRef,
   ]);
 
@@ -165,10 +160,9 @@ function PageToggler({ children }: PageTogglerProps) {
       const bottomPage = document.querySelector(`.p1`);
       const topPageCopy = document.querySelector(`.p0c`) as HTMLElement;
       const bottomPageCopy = document.querySelector(`.p1c`) as HTMLElement;
-      const maxHeight = Math.max(topPage.clientHeight, bottomPage.clientHeight);
 
-      topPageCopy.style.height = `${maxHeight}px`;
-      bottomPageCopy.style.height = `${maxHeight}px`;
+      topPageCopy.style.height = `${topPage.clientHeight}px`;
+      bottomPageCopy.style.height = `${bottomPage.clientHeight}px`;
     };
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -179,7 +173,7 @@ function PageToggler({ children }: PageTogglerProps) {
 
   return (
     <StyledPageToggler ref={pageTogglerRef}>
-      <TogglerContainer ref={scope}>
+      <TogglerContainer ref={toggleContainerRef}>
         {children.map((c, i) => (
           <Fragment key={i}>
             <div className={`p${i}`}>{c}</div>

@@ -13,7 +13,6 @@ export const TogglerContainer = styled(motion.div)`
   grid-template-columns: repeat(2, 100vw);
   grid-template-areas: ${gridAreasMatrix[0][0]};
   grid-gap: 0;
-  align-items: start;
   width: fit-content;
   .p0 {
     grid-area: p0;

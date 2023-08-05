@@ -9,6 +9,8 @@ import {
 function App() {
   const [activePage, setActivePage] = useState<ActivePage>(0);
   const [shouldUsePageToggler, setShouldUsePageToggler] = useState(true);
+  const toggleContainerRef = useRef<HTMLDivElement>(null);
+  const isLayoutChanging = useRef<boolean>(false);
 
   return (
     <div className='App'>
@@ -18,6 +20,8 @@ function App() {
           setActivePage,
           shouldUsePageToggler,
           setShouldUsePageToggler,
+          toggleContainerRef,
+          isLayoutChanging,
         }}>
         <Homepage />
       </PageTogglerContext.Provider>

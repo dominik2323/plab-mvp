@@ -1,29 +1,29 @@
-import { animate, useAnimate } from "framer-motion";
-import React, { Fragment, useContext, useEffect, useRef } from "react";
+import { useAnimate } from "framer-motion";
+import { Fragment, useContext, useEffect, useRef } from "react";
 import {
-  StyledPageToggler,
-  TogglerContainer,
-} from "./Styles/StyledPageToggler";
-import { gridAreasMatrix } from "./pageTogglerConsts";
-import { PageTogglerContext } from "./pageTogglerContext";
+  StyledPageCarousel,
+  CarouselContainer,
+} from "./Styles/StyledPageCarousel";
+import { gridAreasMatrix } from "./pageCarouselConsts";
+import { PageCarouselContext } from "./pageCarouselContext";
 
-interface PageTogglerProps {
+interface PageCarouselProps {
   children: JSX.Element[];
 }
 
 type VPos = 0 | 1 | 2;
 
-function PageToggler({ children }: PageTogglerProps) {
+function PageCarousel({ children }: PageCarouselProps) {
   const {
     activePage,
     setActivePage,
     setShouldUsePageToggler,
-    toggleContainerRef,
+    carouselContainerRef,
     isLayoutChanging,
-  } = useContext(PageTogglerContext);
+  } = useContext(PageCarouselContext);
   const [scope, animate] = useAnimate();
 
-  const pageTogglerRef = useRef<HTMLDivElement>(null);
+  const pageCarouselRef = useRef<HTMLDivElement>(null);
   const vPos = useRef<VPos>(0);
   const prevVPos = useRef<VPos>(vPos.current);
   const prevScrollTop = useRef<number>(0);
@@ -33,23 +33,23 @@ function PageToggler({ children }: PageTogglerProps) {
   useEffect(() => {
     const setLayout = (layout, motionValue) => {
       isLayoutChanging.current = true;
-      animate(toggleContainerRef.current, motionValue, { duration: 0 }).then(
+      animate(carouselContainerRef.current, motionValue, { duration: 0 }).then(
         () => {
-          toggleContainerRef.current.style.gridTemplateAreas = layout;
+          carouselContainerRef.current.style.gridTemplateAreas = layout;
           isLayoutChanging.current = false;
         }
       );
     };
 
     const raf = () => {
-      const scrollTop = pageTogglerRef.current.scrollTop;
+      const scrollTop = pageCarouselRef.current.scrollTop;
 
       if (scrollTop !== prevScrollTop.current) {
         scrollDirection.current =
           scrollTop - prevScrollTop.current > 0 ? 1 : -1;
         prevScrollTop.current = scrollTop;
 
-        const viewportHeight = pageTogglerRef.current.clientHeight;
+        const viewportHeight = pageCarouselRef.current.clientHeight;
         const firstPage = document.querySelector(`.p0`);
         const secondPage = document.querySelector(`.p1`);
         const pagesEls = [firstPage, secondPage];
@@ -150,8 +150,8 @@ function PageToggler({ children }: PageTogglerProps) {
     setShouldUsePageToggler,
     animate,
     activePage,
-    toggleContainerRef,
-    pageTogglerRef,
+    carouselContainerRef,
+    pageCarouselRef,
   ]);
 
   useEffect(() => {
@@ -172,17 +172,17 @@ function PageToggler({ children }: PageTogglerProps) {
   }, []);
 
   return (
-    <StyledPageToggler ref={pageTogglerRef}>
-      <TogglerContainer ref={toggleContainerRef}>
+    <StyledPageCarousel ref={pageCarouselRef}>
+      <CarouselContainer ref={carouselContainerRef}>
         {children.map((c, i) => (
           <Fragment key={i}>
             <div className={`p${i}`}>{c}</div>
             <div className={`p${i}c`} />
           </Fragment>
         ))}
-      </TogglerContainer>
-    </StyledPageToggler>
+      </CarouselContainer>
+    </StyledPageCarousel>
   );
 }
 
-export default PageToggler;
+export default PageCarousel;

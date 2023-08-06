@@ -1,6 +1,6 @@
 import Page from "./components/Page";
-import PageToggler from "./components/PageToggler/PageToggler";
-import Toggler from "./components/Toggler";
+import PageCarousel from "./components/PageCarousel/PageCarousel";
+import PageCarouselControls from "./components/PageCarousel/PageCarouselControls";
 import styled from "styled-components";
 
 export const StyledHomepage = styled.div`
@@ -10,15 +10,15 @@ export const StyledHomepage = styled.div`
 function Homepage() {
   return (
     <StyledHomepage>
-      <Toggler />
-      <PageToggler>
+      <PageCarouselControls />
+      <PageCarousel>
         <Page height={"300vh"} colors={["#FFFFFF", "#000000"]}>
           <span>WORK</span>
         </Page>
         <Page height={"300vh"} colors={["#A947FF", "#FAF4FF"]}>
           <span>LIFE</span>
         </Page>
-      </PageToggler>
+      </PageCarousel>
     </StyledHomepage>
   );
 }

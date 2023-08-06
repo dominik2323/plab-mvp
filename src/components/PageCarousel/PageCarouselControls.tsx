@@ -1,18 +1,20 @@
+import {
+  PAGES_ANIM_DURATION,
+  CONTROLS_ANIM_DURATION,
+} from "./pageCarouselConsts";
 import { AnimatePresence, animate } from "framer-motion";
 import { useContext, useEffect } from "react";
-import { PageTogglerContext } from "./PageToggler/pageTogglerContext";
-import TogglerButton, { SWITCH_TOGGLES_DURATION } from "./TogglerButton";
+import { PageCarouselContext } from "./pageCarouselContext";
+import PageCarouselButton from "./PageCarouselButton";
 
-export const SWITCH_PAGES_DURATION = 0.7 as const;
-
-function Toggler() {
+function PageCarouselControls() {
   const {
     activePage,
     setActivePage,
-    toggleContainerRef,
+    carouselContainerRef,
     shouldUsePageToggler,
     isLayoutChanging,
-  } = useContext(PageTogglerContext);
+  } = useContext(PageCarouselContext);
 
   useEffect(() => {
     if (!shouldUsePageToggler) return;
@@ -20,24 +22,24 @@ function Toggler() {
 
     const goToLifeAnimation = async () => {
       await animate(
-        toggleContainerRef.current,
+        carouselContainerRef.current,
         { x: "-50%" },
         {
           ease: [0.22, 1, 0.36, 1],
-          duration: SWITCH_PAGES_DURATION,
-          delay: SWITCH_TOGGLES_DURATION,
+          duration: PAGES_ANIM_DURATION,
+          delay: CONTROLS_ANIM_DURATION,
         }
       );
     };
 
     const goToWorkAnimation = async () => {
       await animate(
-        toggleContainerRef.current,
+        carouselContainerRef.current,
         { x: "0%" },
         {
           ease: [0.22, 1, 0.36, 1],
-          duration: SWITCH_PAGES_DURATION,
-          delay: SWITCH_TOGGLES_DURATION,
+          duration: PAGES_ANIM_DURATION,
+          delay: CONTROLS_ANIM_DURATION,
         }
       );
     };
@@ -48,7 +50,7 @@ function Toggler() {
   return (
     <AnimatePresence mode={"wait"}>
       {shouldUsePageToggler && activePage === 1 && (
-        <TogglerButton
+        <PageCarouselButton
           key={"work"}
           direction={1}
           className={"bg-black pos-left"}
@@ -56,10 +58,10 @@ function Toggler() {
             setActivePage(0);
           }}>
           Go to work
-        </TogglerButton>
+        </PageCarouselButton>
       )}
       {shouldUsePageToggler && activePage === 0 && (
-        <TogglerButton
+        <PageCarouselButton
           key={"life"}
           direction={-1}
           className={"bg-purple pos-right"}
@@ -67,10 +69,10 @@ function Toggler() {
             setActivePage(1);
           }}>
           Go to life
-        </TogglerButton>
+        </PageCarouselButton>
       )}
     </AnimatePresence>
   );
 }
 
-export default Toggler;
+export default PageCarouselControls;

@@ -16,7 +16,7 @@
   },
   "include": [
     "src/**/*.tsx",
-    "src/components/PageToggler/pageTogglerConsts.ts"
+    "src/components/PageCarousel/pageCarouselConsts.ts"
   ],
   "exclude": ["node_modules", ".vscode"]
 }
